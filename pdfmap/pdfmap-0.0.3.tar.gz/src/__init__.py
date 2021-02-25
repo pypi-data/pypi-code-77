@@ -1,0 +1,1 @@
+from collier import pdfWordMap
