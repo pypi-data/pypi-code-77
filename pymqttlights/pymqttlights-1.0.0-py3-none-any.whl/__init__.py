@@ -1,0 +1,1 @@
+"""PyMQTTLights - A simple python library to control my MQTT based fairylights."""

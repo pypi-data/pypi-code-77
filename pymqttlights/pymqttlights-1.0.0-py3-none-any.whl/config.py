@@ -1,0 +1,12 @@
+MQTT_CERTIFICATE = None
+MQTT_KEEPALIVE = 60
+MQTT_DEVICE = 'devices'
+MQTT_LIGHT = 'lights'
+MQTT_CONTROL = 'control'
+MQTT_STATUS = 'status'
+MQTT_CLIENT_ID = 'fairyPy'
+MQTT_DISCOVERY = 'discovery'
+MQTT_CONNECTED = 'connection'
+MQTT_DEFAULT_REALM = 'public'
+
+SCAN_TIMEOUT_SECONDS = 10
