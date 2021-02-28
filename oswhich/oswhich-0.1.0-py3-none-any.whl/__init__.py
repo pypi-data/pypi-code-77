@@ -1,0 +1,1 @@
+from .oswhich import OsWhich, linux, macosx, windows, solaris
