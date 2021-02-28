@@ -1,0 +1,1 @@
+"""Ingot Rabbitmq bootstrap scaffolding."""
