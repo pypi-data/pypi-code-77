@@ -1,0 +1,30 @@
+from starlette.responses import FileResponse, Response
+import os
+import mimetypes
+
+
+class EmptyWSGI:
+    def __init__(self):
+        ...
+
+
+class StaticFile:
+    def __init__(self, directory):
+        self.directory = directory
+    
+    async def __call__(self, request, path: str):
+        headers = {}
+        filename = os.path.basename(path)
+        
+        with open(path, "rb") as f:
+            data = f.read()
+        
+        mimetype = mimetypes.guess_type(filename)
+        
+        headers.update(
+            {
+                "Content-Type": mimetype
+            }
+        )
+        
+        return Response(data, media_type=mimetype)
