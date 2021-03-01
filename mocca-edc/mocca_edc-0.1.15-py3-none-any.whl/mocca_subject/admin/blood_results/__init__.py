@@ -1,0 +1,2 @@
+from .blood_results_fbc_admin import BloodResultsFbcAdmin
+from .blood_results_lipid_admin import BloodResultsLipidAdmin
