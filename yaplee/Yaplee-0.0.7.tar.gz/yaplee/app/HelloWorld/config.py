@@ -1,0 +1,5 @@
+DEVELOPMENT_SERVER_PORT = 8891
+
+APP_PAGES = [
+    'HelloWorld'
+]
