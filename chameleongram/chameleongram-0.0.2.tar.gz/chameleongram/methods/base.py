@@ -1,0 +1,3 @@
+class Base:
+    def __call__(self, *_):
+        ...
