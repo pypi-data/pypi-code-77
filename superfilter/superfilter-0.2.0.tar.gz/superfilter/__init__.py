@@ -1,0 +1,1 @@
+from .superfilter import filterclass, filtermethod
