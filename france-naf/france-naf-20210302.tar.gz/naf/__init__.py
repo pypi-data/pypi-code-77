@@ -1,0 +1,127 @@
+import json
+from dataclasses import dataclass, is_dataclass, asdict, fields as datafields
+from pathlib import Path
+
+try:
+    import xlrd
+except ImportError:
+    print("xlrd not found, naf library is open in read-only")
+
+DB_PATH = Path(__file__).parent / "db"
+
+
+class DBSingleton(dict):
+    section = {}
+    division = {}
+    groupe = {}
+
+    def persist(self):
+        DB_PATH.write_text(str(self))
+        print(f"Data saved to {DB_PATH}")
+
+    def load(self):
+        print(f"Loading NAF data from {DB_PATH}")
+        self.clear()
+        raw = json.loads(DB_PATH.read_text())
+        for key, value in raw.items():
+            self[key] = NAF.from_dict(value)
+
+    def __setitem__(self, key, value):
+        if not isinstance(value, NAF):
+            value = NAF.from_dict(value)
+        self.section[value.section.code] = value.section.description
+        self.division[value.division.code] = value.division.description
+        self.groupe[value.groupe.code] = value.groupe.description
+        super().__setitem__(key, value)
+
+    def __iter__(self):
+        return iter(self.values())
+
+    def __str__(self):
+        return json.dumps(self, cls=JSONEncoder)
+
+    def pairs(self):
+        for code, obj in self.items():
+            yield code, str(obj)
+
+
+DB = DBSingleton()
+
+
+@dataclass
+class Category:
+    code: str
+    description: str
+
+    def __str__(self):
+        return self.description
+
+    def __eq__(self, other):
+        return other == self.code
+
+
+@dataclass
+class NAF:
+    code: str
+    description: str
+    classe: Category
+    groupe: Category
+    division: Category
+    section: Category
+
+    def __str__(self):
+        return self.description
+
+    def __iter__(self):
+        yield from asdict(self).items()
+
+    @classmethod
+    def from_dict(cls, raw):
+        fields = datafields(cls)
+        data = {}
+        for field in fields:
+            value = raw[field.name]
+            if field.type == Category:
+                value = Category(**value)
+            data[field.name] = value
+        return cls(**data)
+
+
+class JSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if is_dataclass(o):
+            return asdict(o)
+        return super().default(o)
+
+
+def update_db(path):
+    book = xlrd.open_workbook(path)
+    sheet = book.sheet_by_index(0)
+    for idx in range(1, sheet.nrows):
+        row = sheet.row(idx)
+        code = row[1].value
+        description = row[2].value
+        if not code:
+            continue
+        if len(code) != 6:
+            if code.startswith("SECTION"):
+                section = Category(code[8:], description)
+            elif len(code) == 2:
+                division = Category(code, description)
+            elif len(code) == 4:
+                groupe = Category(code, description)
+            elif len(code) == 5:
+                classe = Category(code, description)
+        else:
+            DB[code] = NAF(
+                code=code,
+                description=description,
+                classe=classe,
+                groupe=groupe,
+                division=division,
+                section=section,
+            )
+    DB.persist()
+
+
+DB.load()
